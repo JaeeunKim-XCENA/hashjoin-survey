@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     ca-certificates \
     gnupg \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
 # Node.js 22 LTS (Claude Code 실행용)
@@ -29,6 +30,11 @@ RUN npm install -g @anthropic-ai/claude-code
 COPY agent-deck /usr/local/bin/agent-deck
 RUN chmod +x /usr/local/bin/agent-deck
 
-WORKDIR /workspace
+# jekim 유저 생성 (sudo 권한, 호스트 UID/GID와 매칭)
+RUN useradd -m -s /bin/bash -u 1005 -U jekim && \
+    echo "jekim ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+USER jekim
+WORKDIR /home/jekim/workspace
 
 CMD ["/bin/bash"]
